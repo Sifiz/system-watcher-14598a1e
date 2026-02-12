@@ -6,13 +6,12 @@ import { ConfigFile } from '@/types/configFile';
 import { ConfigFileList } from '@/components/config/ConfigFileList';
 import { ConfigEditor } from '@/components/config/ConfigEditor';
 import { CreateFileDialog } from '@/components/config/CreateFileDialog';
+import { useMonitoringData } from '@/hooks/useMonitoringData';
 
-// Sample config files — replace with real data later
+// Sample config files associated with machines
 const initialFiles: ConfigFile[] = [
   {
-    id: '1',
-    name: 'nginx.conf',
-    path: '/etc/nginx/',
+    id: '1', name: 'nginx.conf', path: '/etc/nginx/', machineId: 'srv-001',
     content: `worker_processes auto;
 error_log /var/log/nginx/error.log warn;
 pid /var/run/nginx.pid;
@@ -36,13 +35,10 @@ http {
         }
     }
 }`,
-    lastModified: new Date('2026-02-10'),
-    size: 420,
+    lastModified: new Date('2026-02-10'), size: 420,
   },
   {
-    id: '2',
-    name: 'mysql.cnf',
-    path: '/etc/mysql/',
+    id: '2', name: 'mysql.cnf', path: '/etc/mysql/', machineId: 'srv-002',
     content: `[mysqld]
 bind-address = 0.0.0.0
 port = 3306
@@ -52,13 +48,10 @@ innodb_log_file_size = 256M
 slow_query_log = 1
 slow_query_log_file = /var/log/mysql/slow.log
 long_query_time = 2`,
-    lastModified: new Date('2026-02-08'),
-    size: 230,
+    lastModified: new Date('2026-02-08'), size: 230,
   },
   {
-    id: '3',
-    name: 'supervisord.conf',
-    path: '/etc/supervisor/',
+    id: '3', name: 'supervisord.conf', path: '/etc/supervisor/', machineId: 'srv-001',
     content: `[supervisord]
 logfile=/var/log/supervisord.log
 pidfile=/var/run/supervisord.pid
@@ -78,13 +71,10 @@ autostart=true
 autorestart=true
 numprocs=4
 process_name=%(program_name)s_%(process_num)02d`,
-    lastModified: new Date('2026-02-11'),
-    size: 480,
+    lastModified: new Date('2026-02-11'), size: 480,
   },
   {
-    id: '4',
-    name: 'redis.conf',
-    path: '/etc/redis/',
+    id: '4', name: 'redis.conf', path: '/etc/redis/', machineId: 'srv-003',
     content: `bind 127.0.0.1
 port 6379
 daemonize yes
@@ -94,12 +84,34 @@ maxmemory-policy allkeys-lru
 save 900 1
 save 300 10
 save 60 10000`,
-    lastModified: new Date('2026-02-09'),
-    size: 180,
+    lastModified: new Date('2026-02-09'), size: 180,
+  },
+  {
+    id: '5', name: 'docker-compose.yml', path: '/opt/app/', machineId: 'srv-004',
+    content: `version: '3.8'
+services:
+  app:
+    image: node:18-alpine
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src
+    restart: unless-stopped`,
+    lastModified: new Date('2026-02-10'), size: 200,
+  },
+  {
+    id: '6', name: 'crontab.conf', path: '/etc/cron.d/', machineId: 'srv-006',
+    content: `# Daily backup at 2 AM
+0 2 * * * root /opt/scripts/backup.sh >> /var/log/backup.log 2>&1
+
+# Health check every 5 min
+*/5 * * * * www-data curl -sf http://localhost:3000/health || systemctl restart app`,
+    lastModified: new Date('2026-02-11'), size: 180,
   },
 ];
 
 export default function ConfigPage() {
+  const { machines } = useMonitoringData();
   const [files, setFiles] = useState<ConfigFile[]>(initialFiles);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -117,11 +129,10 @@ export default function ConfigPage() {
     if (selectedFileId === id) setSelectedFileId(null);
   };
 
-  const handleCreate = (name: string, path: string) => {
+  const handleCreate = (name: string, path: string, machineId: string) => {
     const newFile: ConfigFile = {
       id: crypto.randomUUID(),
-      name,
-      path,
+      name, path, machineId,
       content: `# ${name}\n# Created: ${new Date().toISOString()}\n\n`,
       lastModified: new Date(),
       size: 0,
@@ -154,9 +165,10 @@ export default function ConfigPage() {
 
       {/* Content */}
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-64 shrink-0">
+        <div className="w-72 shrink-0">
           <ConfigFileList
             files={files}
+            machines={machines}
             selectedFileId={selectedFileId}
             onSelectFile={(f) => setSelectedFileId(f.id)}
             onCreateFile={() => setShowCreate(true)}
@@ -175,6 +187,7 @@ export default function ConfigPage() {
         open={showCreate}
         onClose={() => setShowCreate(false)}
         onCreate={handleCreate}
+        machines={machines}
       />
     </div>
   );
