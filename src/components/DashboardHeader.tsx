@@ -1,6 +1,7 @@
-import { Activity, RefreshCw, Server } from 'lucide-react';
+import { Activity, RefreshCw, Server, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Machine } from '@/types/monitoring';
+import { Link } from 'react-router-dom';
 
 interface DashboardHeaderProps {
   machines: Machine[];
@@ -59,6 +60,12 @@ export function DashboardHeader({ machines }: DashboardHeaderProps) {
             </div>
 
             {/* Refresh Button */}
+            <Button variant="outline" size="sm" className="gap-2" asChild>
+              <Link to="/config">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">Config</span>
+              </Link>
+            </Button>
             <Button variant="outline" size="sm" className="gap-2">
               <RefreshCw className="h-4 w-4" />
               <span className="hidden sm:inline">Actualiser</span>
