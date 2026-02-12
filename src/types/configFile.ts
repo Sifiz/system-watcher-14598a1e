@@ -5,4 +5,5 @@ export interface ConfigFile {
   content: string;
   lastModified: Date;
   size: number;
+  machineId: string;
 }
