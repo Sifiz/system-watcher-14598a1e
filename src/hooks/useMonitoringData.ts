@@ -115,6 +115,11 @@ const generateMockMachines = (): Machine[] => [
     lastUpdate: new Date(),
     cpuHistory: generateHistory(20),
     ramHistory: generateHistory(40),
+    pinnedProcesses: [
+      { name: 'node', status: 'running' },
+      { name: 'docker', status: 'stopped' },
+      { name: 'postgres', status: 'running' },
+    ],
   },
 ];
 
