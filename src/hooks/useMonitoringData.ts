@@ -44,6 +44,10 @@ const generateMockMachines = (): Machine[] => [
     lastUpdate: new Date(),
     cpuHistory: generateHistory(30, 10),
     ramHistory: generateHistory(85, 5),
+    pinnedProcesses: [
+      { name: 'postgres', status: 'running' },
+      { name: 'redis-server', status: 'running' },
+    ],
   },
   {
     id: 'srv-003',
