@@ -1,4 +1,4 @@
-import { Activity, RefreshCw, Server, Settings } from 'lucide-react';
+import { Activity, RefreshCw, Server, Settings, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Machine } from '@/types/monitoring';
 import { Link } from 'react-router-dom';
