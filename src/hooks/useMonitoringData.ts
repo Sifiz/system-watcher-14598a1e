@@ -98,6 +98,9 @@ const generateMockMachines = (): Machine[] => [
     lastUpdate: new Date(Date.now() - 3600000),
     cpuHistory: generateHistory(0, 0),
     ramHistory: generateHistory(0, 0),
+    pinnedProcesses: [
+      { name: 'rsync', status: 'unknown' },
+    ],
   },
   {
     id: 'srv-006',
