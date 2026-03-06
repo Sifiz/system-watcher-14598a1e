@@ -1,3 +1,8 @@
+export interface PinnedProcess {
+  name: string;
+  status: 'running' | 'stopped' | 'unknown';
+}
+
 export interface Machine {
   id: string;
   name: string;
@@ -11,6 +16,7 @@ export interface Machine {
   lastUpdate: Date;
   cpuHistory: { time: string; value: number }[];
   ramHistory: { time: string; value: number }[];
+  pinnedProcesses: PinnedProcess[];
 }
 
 export interface Process {
