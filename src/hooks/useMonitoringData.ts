@@ -80,6 +80,10 @@ const generateMockMachines = (): Machine[] => [
     lastUpdate: new Date(),
     cpuHistory: generateHistory(40),
     ramHistory: generateHistory(45),
+    pinnedProcesses: [
+      { name: 'docker', status: 'running' },
+      { name: 'node', status: 'running' },
+    ],
   },
   {
     id: 'srv-005',
