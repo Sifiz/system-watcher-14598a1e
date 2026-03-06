@@ -62,6 +62,10 @@ const generateMockMachines = (): Machine[] => [
     lastUpdate: new Date(),
     cpuHistory: generateHistory(80, 12),
     ramHistory: generateHistory(55),
+    pinnedProcesses: [
+      { name: 'nginx', status: 'running' },
+      { name: 'node', status: 'stopped' },
+    ],
   },
   {
     id: 'srv-004',
