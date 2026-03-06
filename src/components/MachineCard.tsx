@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { StatusBadge } from '@/components/StatusBadge';
 import { MetricCard } from '@/components/MetricCard';
 import { MiniChart } from '@/components/MiniChart';
-import { Cpu, MemoryStick, Activity, Clock, Server } from 'lucide-react';
+import { Cpu, MemoryStick, Activity, Clock, Server, Terminal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MachineCardProps {
@@ -27,6 +27,12 @@ function getUsageVariant(usage: number): 'default' | 'warning' | 'danger' | 'suc
   if (usage >= 50) return 'default';
   return 'success';
 }
+
+const processStatusColor: Record<string, string> = {
+  running: 'bg-success',
+  stopped: 'bg-destructive',
+  unknown: 'bg-muted-foreground',
+};
 
 export function MachineCard({ machine, isSelected, onSelect }: MachineCardProps) {
   const isOffline = machine.status === 'offline';
@@ -103,6 +109,33 @@ export function MachineCard({ machine, isSelected, onSelect }: MachineCardProps)
             icon={Clock}
           />
         </div>
+
+        {/* Pinned Processes */}
+        {machine.pinnedProcesses.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <Terminal className="h-3 w-3" />
+              <span>Processus raccourcis</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {machine.pinnedProcesses.map((proc) => (
+                <span
+                  key={proc.name}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/50 px-2 py-1 font-mono text-xs text-foreground"
+                >
+                  <span
+                    className={cn(
+                      'h-1.5 w-1.5 rounded-full',
+                      processStatusColor[proc.status],
+                      proc.status === 'running' && 'status-pulse'
+                    )}
+                  />
+                  {proc.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

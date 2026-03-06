@@ -25,6 +25,11 @@ const generateMockMachines = (): Machine[] => [
     lastUpdate: new Date(),
     cpuHistory: generateHistory(50),
     ramHistory: generateHistory(70, 8),
+    pinnedProcesses: [
+      { name: 'nginx', status: 'running' },
+      { name: 'node', status: 'running' },
+      { name: 'redis-server', status: 'running' },
+    ],
   },
   {
     id: 'srv-002',
@@ -39,6 +44,10 @@ const generateMockMachines = (): Machine[] => [
     lastUpdate: new Date(),
     cpuHistory: generateHistory(30, 10),
     ramHistory: generateHistory(85, 5),
+    pinnedProcesses: [
+      { name: 'postgres', status: 'running' },
+      { name: 'redis-server', status: 'running' },
+    ],
   },
   {
     id: 'srv-003',
@@ -53,6 +62,10 @@ const generateMockMachines = (): Machine[] => [
     lastUpdate: new Date(),
     cpuHistory: generateHistory(80, 12),
     ramHistory: generateHistory(55),
+    pinnedProcesses: [
+      { name: 'nginx', status: 'running' },
+      { name: 'node', status: 'stopped' },
+    ],
   },
   {
     id: 'srv-004',
@@ -67,6 +80,10 @@ const generateMockMachines = (): Machine[] => [
     lastUpdate: new Date(),
     cpuHistory: generateHistory(40),
     ramHistory: generateHistory(45),
+    pinnedProcesses: [
+      { name: 'docker', status: 'running' },
+      { name: 'node', status: 'running' },
+    ],
   },
   {
     id: 'srv-005',
@@ -81,6 +98,9 @@ const generateMockMachines = (): Machine[] => [
     lastUpdate: new Date(Date.now() - 3600000),
     cpuHistory: generateHistory(0, 0),
     ramHistory: generateHistory(0, 0),
+    pinnedProcesses: [
+      { name: 'rsync', status: 'unknown' },
+    ],
   },
   {
     id: 'srv-006',
@@ -95,6 +115,11 @@ const generateMockMachines = (): Machine[] => [
     lastUpdate: new Date(),
     cpuHistory: generateHistory(20),
     ramHistory: generateHistory(40),
+    pinnedProcesses: [
+      { name: 'node', status: 'running' },
+      { name: 'docker', status: 'stopped' },
+      { name: 'postgres', status: 'running' },
+    ],
   },
 ];
 
