@@ -1,117 +1,129 @@
-import { useState, useCallback } from 'react';
-import { Scenario, ScenarioStep, FailureAction } from '@/types/scenario';
-
-const generateId = () => Math.random().toString(36).substring(2, 10);
-
-const defaultScenarios: Scenario[] = [
-  {
-    id: 'sc-001',
-    name: 'Production Startup',
-    description: 'Lance les services de production dans l\'ordre : DB → Cache → API → Frontend',
-    steps: [
-      { id: 's1', processName: 'postgres', machineId: 'srv-002', delay: 0, healthCheck: true, healthTimeout: 30, onFailure: 'abort', retryCount: 3, order: 0 },
-      { id: 's2', processName: 'redis-server', machineId: 'srv-002', delay: 5, healthCheck: true, healthTimeout: 15, onFailure: 'retry', retryCount: 2, order: 1 },
-      { id: 's3', processName: 'nginx', machineId: 'srv-001', delay: 2, healthCheck: true, healthTimeout: 10, onFailure: 'abort', retryCount: 1, order: 2 },
-      { id: 's4', processName: 'node', machineId: 'srv-001', delay: 3, healthCheck: false, healthTimeout: 10, onFailure: 'skip', retryCount: 0, order: 3 },
-    ],
-    enabled: true,
-    lastRun: new Date(Date.now() - 86400000),
-    status: 'success',
-    createdAt: new Date(Date.now() - 604800000),
-  },
-  {
-    id: 'sc-002',
-    name: 'Dev Environment',
-    description: 'Initialise l\'environnement de développement local',
-    steps: [
-      { id: 's5', processName: 'docker', machineId: 'srv-006', delay: 0, healthCheck: true, healthTimeout: 60, onFailure: 'abort', retryCount: 2, order: 0 },
-      { id: 's6', processName: 'postgres', machineId: 'srv-006', delay: 10, healthCheck: true, healthTimeout: 20, onFailure: 'retry', retryCount: 3, order: 1 },
-      { id: 's7', processName: 'node', machineId: 'srv-006', delay: 5, healthCheck: false, healthTimeout: 10, onFailure: 'skip', retryCount: 0, order: 2 },
-    ],
-    enabled: false,
-    status: 'idle',
-    createdAt: new Date(Date.now() - 259200000),
-  },
-];
+import { useState, useEffect, useCallback } from 'react';
+import { Scenario, ScenarioStep } from '@/types/scenario';
+import { api } from '@/lib/api';
 
 export function useScenarios() {
-  const [scenarios, setScenarios] = useState<Scenario[]>(defaultScenarios);
-  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>('sc-001');
+  const [scenarios, setScenarios] = useState<Scenario[]>([]);
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const selectedScenario = scenarios.find(s => s.id === selectedScenarioId) || null;
 
-  const createScenario = useCallback((name: string, description: string) => {
-    const newScenario: Scenario = {
-      id: generateId(),
-      name,
-      description,
-      steps: [],
-      enabled: false,
-      status: 'idle',
-      createdAt: new Date(),
-    };
-    setScenarios(prev => [...prev, newScenario]);
-    setSelectedScenarioId(newScenario.id);
-  }, []);
-
-  const deleteScenario = useCallback((id: string) => {
-    setScenarios(prev => prev.filter(s => s.id !== id));
-    if (selectedScenarioId === id) setSelectedScenarioId(null);
+  // Fetch scenarios
+  const fetchScenarios = useCallback(async () => {
+    try {
+      const data = await api.getScenarios();
+      const parsed = data.map(s => ({
+        ...s,
+        createdAt: new Date(s.createdAt),
+        lastRun: s.lastRun ? new Date(s.lastRun) : undefined,
+      }));
+      setScenarios(parsed);
+      if (!selectedScenarioId && parsed.length > 0) {
+        setSelectedScenarioId(parsed[0].id);
+      }
+    } catch (err) {
+      console.error('Failed to fetch scenarios:', err);
+    } finally {
+      setIsLoading(false);
+    }
   }, [selectedScenarioId]);
 
-  const updateScenario = useCallback((id: string, updates: Partial<Scenario>) => {
-    setScenarios(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  useEffect(() => {
+    fetchScenarios();
   }, []);
 
-  const addStep = useCallback((scenarioId: string, step: Omit<ScenarioStep, 'id' | 'order'>) => {
-    setScenarios(prev => prev.map(s => {
-      if (s.id !== scenarioId) return s;
-      const newStep: ScenarioStep = { ...step, id: generateId(), order: s.steps.length };
-      return { ...s, steps: [...s.steps, newStep] };
-    }));
+  const createScenario = useCallback(async (name: string, description: string) => {
+    try {
+      const newScenario = await api.createScenario({ name, description });
+      newScenario.createdAt = new Date(newScenario.createdAt);
+      setScenarios(prev => [...prev, newScenario]);
+      setSelectedScenarioId(newScenario.id);
+    } catch (err) {
+      console.error('Failed to create scenario:', err);
+    }
   }, []);
 
-  const updateStep = useCallback((scenarioId: string, stepId: string, updates: Partial<ScenarioStep>) => {
-    setScenarios(prev => prev.map(s => {
-      if (s.id !== scenarioId) return s;
-      return { ...s, steps: s.steps.map(st => st.id === stepId ? { ...st, ...updates } : st) };
-    }));
+  const deleteScenario = useCallback(async (id: string) => {
+    try {
+      await api.deleteScenario(id);
+      setScenarios(prev => prev.filter(s => s.id !== id));
+      if (selectedScenarioId === id) setSelectedScenarioId(null);
+    } catch (err) {
+      console.error('Failed to delete scenario:', err);
+    }
+  }, [selectedScenarioId]);
+
+  const updateScenario = useCallback(async (id: string, updates: Partial<Scenario>) => {
+    try {
+      const updated = await api.updateScenario(id, updates);
+      updated.createdAt = new Date(updated.createdAt);
+      if (updated.lastRun) updated.lastRun = new Date(updated.lastRun);
+      setScenarios(prev => prev.map(s => s.id === id ? updated : s));
+    } catch (err) {
+      console.error('Failed to update scenario:', err);
+    }
   }, []);
 
-  const removeStep = useCallback((scenarioId: string, stepId: string) => {
-    setScenarios(prev => prev.map(s => {
-      if (s.id !== scenarioId) return s;
-      const filtered = s.steps.filter(st => st.id !== stepId).map((st, i) => ({ ...st, order: i }));
-      return { ...s, steps: filtered };
-    }));
+  const addStep = useCallback(async (scenarioId: string, step: Omit<ScenarioStep, 'id' | 'order'>) => {
+    try {
+      const updated = await api.addScenarioStep(scenarioId, step);
+      updated.createdAt = new Date(updated.createdAt);
+      setScenarios(prev => prev.map(s => s.id === scenarioId ? updated : s));
+    } catch (err) {
+      console.error('Failed to add step:', err);
+    }
   }, []);
 
-  const moveStep = useCallback((scenarioId: string, stepId: string, direction: 'up' | 'down') => {
-    setScenarios(prev => prev.map(s => {
-      if (s.id !== scenarioId) return s;
-      const steps = [...s.steps];
-      const idx = steps.findIndex(st => st.id === stepId);
-      if (idx < 0) return s;
-      const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
-      if (swapIdx < 0 || swapIdx >= steps.length) return s;
-      [steps[idx], steps[swapIdx]] = [steps[swapIdx], steps[idx]];
-      return { ...s, steps: steps.map((st, i) => ({ ...st, order: i })) };
-    }));
+  const updateStep = useCallback(async (scenarioId: string, stepId: string, updates: Partial<ScenarioStep>) => {
+    try {
+      const updated = await api.updateScenarioStep(scenarioId, stepId, updates);
+      updated.createdAt = new Date(updated.createdAt);
+      setScenarios(prev => prev.map(s => s.id === scenarioId ? updated : s));
+    } catch (err) {
+      console.error('Failed to update step:', err);
+    }
   }, []);
 
-  const runScenario = useCallback((id: string) => {
-    updateScenario(id, { status: 'running', lastRun: new Date() });
-    // Simulate execution
-    setTimeout(() => {
-      updateScenario(id, { status: Math.random() > 0.2 ? 'success' : 'error' });
-    }, 3000);
-  }, [updateScenario]);
+  const removeStep = useCallback(async (scenarioId: string, stepId: string) => {
+    try {
+      const updated = await api.removeScenarioStep(scenarioId, stepId);
+      updated.createdAt = new Date(updated.createdAt);
+      setScenarios(prev => prev.map(s => s.id === scenarioId ? updated : s));
+    } catch (err) {
+      console.error('Failed to remove step:', err);
+    }
+  }, []);
+
+  const moveStep = useCallback(async (scenarioId: string, stepId: string, direction: 'up' | 'down') => {
+    try {
+      const updated = await api.moveScenarioStep(scenarioId, stepId, direction);
+      updated.createdAt = new Date(updated.createdAt);
+      setScenarios(prev => prev.map(s => s.id === scenarioId ? updated : s));
+    } catch (err) {
+      console.error('Failed to move step:', err);
+    }
+  }, []);
+
+  const runScenario = useCallback(async (id: string) => {
+    try {
+      // Optimistic update
+      setScenarios(prev => prev.map(s => s.id === id ? { ...s, status: 'running' as const, lastRun: new Date() } : s));
+      await api.runScenario(id);
+      // Refresh to get final status
+      await fetchScenarios();
+    } catch (err) {
+      console.error('Failed to run scenario:', err);
+      setScenarios(prev => prev.map(s => s.id === id ? { ...s, status: 'error' as const } : s));
+    }
+  }, [fetchScenarios]);
 
   return {
     scenarios,
     selectedScenario,
     selectedScenarioId,
     setSelectedScenarioId,
+    isLoading,
     createScenario,
     deleteScenario,
     updateScenario,
