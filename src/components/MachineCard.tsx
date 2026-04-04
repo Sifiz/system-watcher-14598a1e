@@ -5,6 +5,8 @@ import { MetricCard } from '@/components/MetricCard';
 import { MiniChart } from '@/components/MiniChart';
 import { Cpu, MemoryStick, Activity, Clock, Server, Terminal } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 interface MachineCardProps {
   machine: Machine;
