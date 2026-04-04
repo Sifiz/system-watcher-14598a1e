@@ -1,3 +1,4 @@
+import { AlertTriangle } from 'lucide-react';
 import { useMonitoringData } from '@/hooks/useMonitoringData';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { MachineCard } from '@/components/MachineCard';
