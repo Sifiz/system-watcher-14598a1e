@@ -35,11 +35,11 @@ export default function ConfigPage() {
             <Activity className="h-4 w-4 text-primary" />
           </div>
           <h1 className="font-semibold">
-            <span className="text-gradient">Config Files</span>
+            <span className="text-gradient">File Browser</span>
           </h1>
         </div>
         <span className="text-xs text-muted-foreground">
-          Gestion des fichiers de configuration des processus
+          Parcourir les fichiers de configuration
         </span>
       </header>
 
