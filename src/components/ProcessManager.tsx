@@ -167,7 +167,8 @@ interface PinnedProcessItemProps {
 }
 
 function PinnedProcessItem({ name, pinnedStatus, liveProcess, onAction, onRemove }: PinnedProcessItemProps) {
-  const status = liveProcess?.status || pinnedStatus;
+  const rawStatus = liveProcess?.status || pinnedStatus;
+  const status = rawStatus === 'unknown' ? 'stopped' : rawStatus;
   const isRunning = status === 'running';
 
   return (
