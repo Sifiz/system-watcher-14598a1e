@@ -113,6 +113,22 @@ export function MachineCard({ machine, isSelected, onSelect }: MachineCardProps)
         </div>
 
         {/* Pinned Processes */}
+        {/* Terminal link */}
+        {!isOffline && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full gap-2"
+            asChild
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Link to={`/machines/${machine.id}/terminal`}>
+              <Terminal className="h-3.5 w-3.5" />
+              Terminal
+            </Link>
+          </Button>
+        )}
+
         {machine.pinnedProcesses.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">

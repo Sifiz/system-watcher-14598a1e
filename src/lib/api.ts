@@ -107,4 +107,17 @@ export const api = {
 
   runScenario: (id: string) =>
     request<{ status: string }>(`/scenarios/${id}/run`, { method: 'POST' }),
+
+  // ─── Pinned Processes ───
+
+  addPinnedProcess: (machineId: string, processName: string) =>
+    request<{ success: boolean }>(`/machines/${machineId}/pinned-processes`, {
+      method: 'POST',
+      body: JSON.stringify({ name: processName }),
+    }),
+
+  removePinnedProcess: (machineId: string, processName: string) =>
+    request<{ success: boolean }>(`/machines/${machineId}/pinned-processes/${encodeURIComponent(processName)}`, {
+      method: 'DELETE',
+    }),
 };
