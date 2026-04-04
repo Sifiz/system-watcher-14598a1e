@@ -11,6 +11,8 @@ export function Dashboard() {
     setSelectedMachine,
     processes,
     isLoading,
+    error,
+    isDemo,
     handleProcessAction,
   } = useMonitoringData();
 
