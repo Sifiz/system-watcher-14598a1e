@@ -23,6 +23,12 @@ export function Dashboard() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      {isDemo && (
+        <div className="flex items-center gap-2 bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-sm text-amber-400">
+          <AlertTriangle className="h-4 w-4" />
+          <span>Mode démo — Backend non connecté. Les données affichées sont simulées.</span>
+        </div>
+      )}
       <DashboardHeader machines={machines} />
       
       <div className="flex flex-1">
