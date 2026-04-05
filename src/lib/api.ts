@@ -42,26 +42,6 @@ export const api = {
       body: JSON.stringify({ command }),
     }),
 
-  // ─── Config Files ───
-
-  getConfigFiles: () =>
-    request<import('@/types/configFile').ConfigFile[]>('/config-files'),
-
-  saveConfigFile: (id: string, content: string) =>
-    request<import('@/types/configFile').ConfigFile>(`/config-files/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ content }),
-    }),
-
-  deleteConfigFile: (id: string) =>
-    request<void>(`/config-files/${id}`, { method: 'DELETE' }),
-
-  createConfigFile: (data: { name: string; path: string; machineId: string }) =>
-    request<import('@/types/configFile').ConfigFile>('/config-files', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-
   // ─── Scenarios ───
 
   getScenarios: () =>
