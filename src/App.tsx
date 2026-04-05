@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import Config from "./pages/Config";
+
 import Scenarios from "./pages/Scenarios";
 import TerminalPage from "./pages/Terminal";
 import NotFound from "./pages/NotFound";
@@ -19,7 +19,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/config" element={<Config />} />
+          
           <Route path="/scenarios" element={<Scenarios />} />
           <Route path="/machines/:machineId/terminal" element={<TerminalPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
