@@ -66,12 +66,6 @@ export function DashboardHeader({ machines }: DashboardHeaderProps) {
                 <span className="hidden sm:inline">Scénarios</span>
               </Link>
             </Button>
-            <Button variant="outline" size="sm" className="gap-2" asChild>
-              <Link to="/config">
-                <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">File Browser</span>
-              </Link>
-            </Button>
             <Button variant="outline" size="sm" className="gap-2">
               <RefreshCw className="h-4 w-4" />
               <span className="hidden sm:inline">Actualiser</span>
